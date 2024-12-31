@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelRat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="root">
+        <div id="navbar">
+            <h1 id="heading">PixelRat</h1>
+        </div>
+        <div id="body-container">
+            <div id="canvas-container">
+                <div id="tools-container">
+                    <!-- OLD STATIC CODE -->
+                    <!-- <button class="tool-icon">S</button> -->
+                </div>
+                <div id="canvas-sizer">
+                    <div id="values-display-container">
+                        <p id="values-display"></p>
+                    </div>
+                    <canvas id="canvas"></canvas>
+                </div>
+                <div id="tools-panel">
+                    <div id="settings">
+                        <!-- OLD STATIC CODE -->
+                        <!-- <h4 class="subheading">SETTINGS</h4>
+                        <br/>
+                        <div class="setting-field" style="text-align: center">
+                            <a id="upload-img" onclick="document.getElementById('file-upload').click()">Upload an image to edit</a>
+                            <input id="file-upload" type="file" accept="image/png">
+                        </div>
+                        <br/>
+                        <div class="setting-field">
+                            <span>pixel size: </span><input id="pixel-size-setting" type="number" value="10">
+                        </div>
+                        <br/>
+                        <div class="setting-field">
+                            <span>image width:</span><input id="w-setting" type="number" value="100">
+                        </div>
+                        <div class="setting-field">
+                            <span>image height:</span><input id="h-setting" type="number" value="100">
+                        </div> -->
+                    </div>
+                    <div id="layers">
+                        <h4 class="subheading">LAYERS</h4>
+                        <div id="layers-list-tools">
+                            <button type="button" class="layer-tool-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-plus-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
+                                </svg>
+                            </button> <!--plus-->
+                            <button type="button" class="layer-tool-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-dash-lg" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M2 8a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11A.5.5 0 0 1 2 8" />
+                                </svg>
+                            </button> <!--minus-->
+                            <button type="button" class="layer-tool-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-caret-up-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z" />
+                                </svg>
+                            </button> <!--up-->
+                            <button type="button" class="layer-tool-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                    <path
+                                        d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                                </svg>
+                            </button> <!--down-->
+                        </div>
+                        <div id="layers-list">
+                            
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <div id="export-buttons">
+                <button type="button" class="export-button" id="export-png">save transparent PNG</button>
+                <button type="button" class="export-button" id="export-json">export project (as JSON)</button>
+            </div>
+        </div>
+    </div>
+    <script src="scripts/utilities/Vector2.js"></script>
+    <script src="scripts/utilities/EventManager.js"></script>
+    <script src="scripts/Layer.js"></script>
+    <script src="scripts/LayerManager.js"></script>
+    <script src="scripts/DrawingArea.js"></script>
+    <script src="scripts/ToolManager.js"></script>
+    <script src="scripts/script.js"></script>
+</body>
+
+</html>
