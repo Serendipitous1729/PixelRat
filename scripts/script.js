@@ -11,126 +11,6 @@ function resizeCanvas(canvas, canvasSizer) {
 const eventManager = new EventManager(canvas);
 const toolsConfig = [
     {
-        name: "Project",
-        icon: "gear.svg",
-        inputs: [
-            {
-                label: "load project",
-                type: "file",
-                accept: "application/json"
-            },
-            {
-                type: "gap"
-            },
-            {
-                label: "pixel size",
-                type: "number",
-                value: 10
-            },
-            {
-                type: "gap"
-            },
-            {
-                label: "project width",
-                type: "number",
-                value: 100
-            },
-            {
-                label: "project height",
-                type: "number",
-                value: 100
-            },
-            { type: "gap" },
-            {
-                label: "(ctrl + z)",
-                type: "button",
-                value: "undo"
-            },
-            {
-                label: "(ctrl + y)",
-                type: "button",
-                value: "redo"
-            }
-        ]
-    },
-    {
-        name: "Viewport",
-        icon: "display.svg",
-        inputs: [
-            {
-                label: "center viewport",
-                type: "checkbox",
-                value: "true"
-            },
-            {
-                label: "zoom to fit",
-                type: "checkbox",
-                value: "true"
-            },
-            {
-                label: "reset zoom",
-                type: "button",
-                value: "reset"
-            },
-            {
-                type: "gap"
-            },
-            {
-                label: "viewport pan x",
-                type: "number"
-            },
-            {
-                label: "viewport pan y",
-                type: "number"
-            },
-            {
-                type: "gap"
-            },
-            {
-                label: "viewport zoom",
-                type: "number",
-                step: 0.01
-            },
-            {
-                type: "gap"
-            },
-            {
-                label: "transparency color 1",
-                type: "color",
-                value: "#ffffff"
-            },
-            {
-                label: "transparency color 2",
-                type: "color",
-                value: "#d9d9d9"
-            }
-        ]
-    },
-    {
-        name: "Layer",
-        icon: "layers.svg",
-        inputs: [
-            {
-                label: "name",
-                type: "text",
-                value: "background"
-            },
-            { type: "gap" },
-            {
-                label: "layer opacity",
-                type: "range",
-                value: 1,
-                min: 0,
-                max: 1,
-                step: 0.01
-            }
-        ],
-        layerChangeListener: function (drawingArea, newLayerIndex, self) {
-            self.inputs[0].value = drawingArea.layers[newLayerIndex].name;
-            self.inputs[1].value = drawingArea.layers[newLayerIndex].opacity;
-        }
-    },
-    {
         name: "Pen",
         icon: "pencil.svg",
         inputs: [
@@ -483,12 +363,12 @@ const toolsConfig = [
         icon: "circle.svg",
         inputs: [
             {
-                label: "fill color",
+                label: "color",
                 type: "color",
                 value: "rgba(0, 0, 0, 0)"
             },
             {
-                label: "fill opacity",
+                label: "opacity",
                 type: "range",
                 value: 1,
                 min: 0,
@@ -594,12 +474,12 @@ const toolsConfig = [
         icon: "square.svg",
         inputs: [
             {
-                label: "fill color",
+                label: "color",
                 type: "color",
                 value: "rgba(0, 0, 0, 0)"
             },
             {
-                label: "fill opacity",
+                label: "opacity",
                 type: "range",
                 value: 1,
                 min: 0,
@@ -712,6 +592,126 @@ const toolsConfig = [
             },
         },
         _rectStartIndices: null
+    },
+    {
+        name: "Layer",
+        icon: "layers.svg",
+        inputs: [
+            {
+                label: "name",
+                type: "text",
+                value: "background"
+            },
+            { type: "gap" },
+            {
+                label: "layer opacity",
+                type: "range",
+                value: 1,
+                min: 0,
+                max: 1,
+                step: 0.01
+            }
+        ],
+        layerChangeListener: function (drawingArea, newLayerIndex, self) {
+            self.inputs[0].value = drawingArea.layers[newLayerIndex].name;
+            self.inputs[1].value = drawingArea.layers[newLayerIndex].opacity;
+        }
+    },
+    {
+        name: "Viewport",
+        icon: "display.svg",
+        inputs: [
+            {
+                label: "center viewport",
+                type: "checkbox",
+                value: "true"
+            },
+            {
+                label: "zoom to fit",
+                type: "checkbox",
+                value: "true"
+            },
+            {
+                label: "reset zoom",
+                type: "button",
+                value: "reset"
+            },
+            {
+                type: "gap"
+            },
+            {
+                label: "viewport pan x",
+                type: "number"
+            },
+            {
+                label: "viewport pan y",
+                type: "number"
+            },
+            {
+                type: "gap"
+            },
+            {
+                label: "viewport zoom",
+                type: "number",
+                step: 0.01
+            },
+            {
+                type: "gap"
+            },
+            {
+                label: "transparency color 1",
+                type: "color",
+                value: "#ffffff"
+            },
+            {
+                label: "transparency color 2",
+                type: "color",
+                value: "#d9d9d9"
+            }
+        ]
+    },
+    {
+        name: "Project",
+        icon: "gear.svg",
+        inputs: [
+            {
+                label: "load project",
+                type: "file",
+                accept: "application/json"
+            },
+            {
+                type: "gap"
+            },
+            {
+                label: "pixel size",
+                type: "number",
+                value: 10
+            },
+            {
+                type: "gap"
+            },
+            {
+                label: "project width",
+                type: "number",
+                value: 100
+            },
+            {
+                label: "project height",
+                type: "number",
+                value: 100
+            },
+            { type: "gap" },
+            {
+                label: "(ctrl + z)",
+                type: "button",
+                value: "undo"
+            },
+            {
+                label: "(ctrl + y)",
+                type: "button",
+                value: "redo"
+            }
+        ]
     }
 ];
 const toolManager = new ToolManager(toolsConfig);
