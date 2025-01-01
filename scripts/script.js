@@ -39,6 +39,17 @@ const toolsConfig = [
                 label: "project height",
                 type: "number",
                 value: 100
+            },
+            { type: "gap" },
+            {
+                label: "(ctrl + z)",
+                type: "button",
+                value: "undo"
+            },
+            {
+                label: "(ctrl + y)",
+                type: "button",
+                value: "redo"
             }
         ]
     },
@@ -104,7 +115,7 @@ const toolsConfig = [
                 type: "text",
                 value: "background"
             },
-            {type: "gap"},
+            { type: "gap" },
             {
                 label: "layer opacity",
                 type: "range",
@@ -200,6 +211,77 @@ const toolsConfig = [
                     start.add(stepSize);
                 }
             }
+        },
+        eventListeners: {
+            mousedown: function (drawingArea, e, self) {
+                if (drawingArea.activeLayer.isIndexValid(drawingArea.indicesOfHoveredOverPixel.x, drawingArea.indicesOfHoveredOverPixel.y)) {
+                    drawingArea.pushToUndoStack();
+                }
+            }
+        }
+    },
+    {
+        name: "Eraser",
+        icon: "eraser.svg",
+        inputs: [
+            {
+                label: "size",
+                type: "number",
+                value: 1
+            }
+        ],
+        isPixelHighlighted: function (drawingArea, pixelIndex, self) {
+            let { indicesOfHoveredOverPixel } = drawingArea;
+            let { x, y } = pixelIndex;
+            let lowerBound = Math.floor((self.inputs[0].value - 1) / 2);
+            let upperBound = Math.ceil((self.inputs[0].value - 1) / 2);
+            if (
+                indicesOfHoveredOverPixel.x - lowerBound <= x &&
+                x <= indicesOfHoveredOverPixel.x + upperBound &&
+                indicesOfHoveredOverPixel.y - lowerBound <= y &&
+                y <= indicesOfHoveredOverPixel.y + upperBound
+            ) {
+                return true;
+            }
+            return false;
+        },
+        forEachPixel: function (drawingArea, layerIndex, pixelIndex, self) {
+            let { input, activeLayerIndex, activeLayer, parseHexOpacityIntoColorArray, getPixelIndicesFromScreenspaceCoordinates } = drawingArea; // for some reason if you need the thing to be called with the 'this' context as drawingArea, you cannot import like this
+            let { x, y } = pixelIndex;
+
+            if (input.mouse.left && layerIndex == activeLayerIndex) {
+                let start = input.mouse.prev.get();
+                let end = input.mouse.pos.get();
+                let delta = input.mouse.pos.get().sub(start);
+                let stepSize = Vector2.Normalize(delta).mult(drawingArea.zoomedPixelSize);
+                let numSteps = delta.mag / drawingArea.zoomedPixelSize;
+
+                let lowerBound = Math.floor((self.inputs[0].value - 1) / 2);
+                let upperBound = Math.ceil((self.inputs[0].value - 1) / 2);
+
+                for (let i = 0; i <= numSteps; i++) {
+                    let indices = drawingArea.getPixelIndicesFromScreenspaceCoordinates(start.x, start.y);
+                    if (i == numSteps) indices = drawingArea.getPixelIndicesFromScreenspaceCoordinates(end.x, end.y)
+                    if (
+                        indices.x - lowerBound <= x &&
+                        x <= indices.x + upperBound &&
+                        indices.y - lowerBound <= y &&
+                        y <= indices.y + upperBound
+                    ) {
+                        // we are within `size` of the line!
+                        activeLayer.data[pixelIndex.x][pixelIndex.y] = [0, 0, 0, 0];
+                        break;
+                    }
+                    start.add(stepSize);
+                }
+            }
+        },
+        eventListeners: {
+            mousedown: function (drawingArea, e, self) {
+                if (drawingArea.activeLayer.isIndexValid(drawingArea.indicesOfHoveredOverPixel.x, drawingArea.indicesOfHoveredOverPixel.y)) {
+                    drawingArea.pushToUndoStack();
+                }
+            }
         }
     },
     {
@@ -233,7 +315,13 @@ const toolsConfig = [
                 if (!drawingArea.input.mouse.left) { // only on left click
                     return
                 }
+
                 let clickedPixel = drawingArea.indicesOfHoveredOverPixel;
+                if (!drawingArea.activeLayer.isIndexValid(clickedPixel.x, clickedPixel.y)) {
+                    return; // clicked off the drawing area
+                }
+
+                drawingArea.pushToUndoStack();
                 let oldColor = drawingArea.activeLayer.data[clickedPixel.x][clickedPixel.y];
                 let newColor = drawingArea.parseHexOpacityIntoColorArray(self.inputs[0].value, self.inputs[1].value);
                 let oldColorString = oldColor.join("");
@@ -242,12 +330,8 @@ const toolsConfig = [
                 if (oldColorString != newColor.join("")) {
                     while (toBeFilled.length > 0) {
                         let currentPixelCoords = toBeFilled.shift();
-                        if (
-                            drawingArea.activeLayer.data[currentPixelCoords.x] &&
-                            drawingArea.activeLayer.data[currentPixelCoords.x][currentPixelCoords.y] &&
-                            drawingArea.activeLayer.data[currentPixelCoords.x][currentPixelCoords.y].join("") == oldColorString
-                        ) {
-                            drawingArea.activeLayer.data[currentPixelCoords.x][currentPixelCoords.y] = newColor;
+                        if (drawingArea.activeLayer.isIndexValid(currentPixelCoords.x, currentPixelCoords.y) && drawingArea.activeLayer.data[currentPixelCoords.x][currentPixelCoords.y].join("") === oldColorString) {
+                            drawingArea.activeLayer.set(currentPixelCoords.x, currentPixelCoords.y, newColor);
 
                             toBeFilled.push({ x: currentPixelCoords.x - 1, y: currentPixelCoords.y });
                             toBeFilled.push({ x: currentPixelCoords.x, y: currentPixelCoords.y - 1 });
@@ -311,8 +395,10 @@ const toolsConfig = [
         },
         eventListeners: {
             mousedown: function (drawingArea, e, self) {
-                if (drawingArea.input.mouse.left)
+                if (drawingArea.input.mouse.left) {
                     self._lineStartIndices = new Vector2(drawingArea.indicesOfHoveredOverPixel);
+                    drawingArea.pushToUndoStack();
+                }
             },
             mousemove: function (drawingArea, e, self) {
                 if (self._lineStartIndices === null) {
@@ -431,8 +517,10 @@ const toolsConfig = [
         // here `circle` actually means an ellipse
         eventListeners: {
             mousedown: function (drawingArea, e, self) {
-                if (drawingArea.input.mouse.left)
+                if (drawingArea.input.mouse.left) {
                     self._circleStartIndices = new Vector2(drawingArea.indicesOfHoveredOverPixel);
+                    drawingArea.pushToUndoStack();
+                }
             },
             mousemove: function (drawingArea, e, self) {
 
@@ -533,8 +621,10 @@ const toolsConfig = [
         ],
         eventListeners: {
             mousedown: function (drawingArea, e, self) {
-                if (drawingArea.input.mouse.left)
+                if (drawingArea.input.mouse.left) {
                     self._rectStartIndices = new Vector2(drawingArea.indicesOfHoveredOverPixel);
+                    drawingArea.pushToUndoStack();
+                }
             },
             mousemove: function (drawingArea, e, self) {
                 if (self._rectStartIndices === null) {

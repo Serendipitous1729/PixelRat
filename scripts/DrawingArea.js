@@ -13,6 +13,10 @@ class DrawingArea {
         // this.width and this.height are now defined by getters and setters
         this.pixelsize = 10;
 
+        this.maxUndoSteps = 100;
+        this.undoStack = [];
+        this.redoStack = [];
+
         this.layerManager = LayerManager;
 
         // this.layers is also now a getter!!! :o
@@ -39,7 +43,7 @@ class DrawingArea {
 
         // loading in a project json
         projectTool.inputs[0].addChangeListener((file) => {
-            if(file !== ""){
+            if (file !== "") {
                 let jsonFile = projectTool.inputs[0]._elem.files[0];
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -54,6 +58,14 @@ class DrawingArea {
             viewportTool.inputs[1].value = false;
             this.zoomReset();
             this.tools.getTool("Viewport").inputs[5].value = this.zoom;
+        });
+
+        // undo & redo buttons
+        projectTool.inputs[4]._elem.addEventListener("click", () => {
+            this.undo();
+        });
+        projectTool.inputs[5]._elem.addEventListener("click", () => {
+            this.redo();
         });
 
         // when viewport is centred, pan can't be set
@@ -97,13 +109,31 @@ class DrawingArea {
             this.activeLayer.opacity = parseFloat(newVal);
         }, { scriptChange: false, userChange: true });
 
+        // KEY SHORTCUTS
+        this.input.addEventListener("keydown", (e) => {
+            if(e.ctrlKey) {
+                if(e.key === "z") {
+                    this.undo();
+                    // for some reason checking shiftkey doesnt work?
+                } else if (e.key === "y") {
+                    this.redo();
+                }
+            }
+            if(e.code.slice(0, 5) === "Digit") {
+                if(this.tools.tools[parseInt(e.key) - 1]) {
+                    this.tools.whenToolSelected(this.tools.tools[parseInt(e.key) - 1]); // hotkeying to tool
+                }
+            }
+        })
 
         // what all events need listening to? in the tools
         let eventsToListenTo = [];
         for (let tool of this.tools.tools) {
             if (tool.eventListeners) {
                 for (let event in tool.eventListeners) {
-                    eventsToListenTo.push(event);
+                    if(eventsToListenTo.indexOf(event) == -1) {
+                        eventsToListenTo.push(event);
+                    }
                 }
             }
         }
@@ -557,6 +587,8 @@ class DrawingArea {
             pan: this.pan,
             zoom: this.zoom,
             layerManager: {
+                width: this.layerManager.width,
+                height: this.layerManager.height,
                 activeLayerIndex: this.layerManager.activeLayerIndex,
                 layers: []
             },
@@ -600,13 +632,13 @@ class DrawingArea {
     loadProject(json) {
         let obj = JSON.parse(json);
 
-        if(obj.pixelRat !== "PIXELRAT") {
+        if (obj.pixelRat !== "PIXELRAT") {
             alert("i'm pretty sure this isn't a PixelRat project file");
             this.tools.getTool("Project").inputs[0].value = "";
             return;
         }
 
-        if(obj.dataVersion !== 1) {
+        if (obj.dataVersion !== 1) {
             alert("uh i think this project file is of a different version of PixelRat, sorry");
             this.tools.getTool("Project").inputs[0].value = "";
             return;
@@ -617,6 +649,8 @@ class DrawingArea {
 
         // reset layers
         this.layerManager.layers = [];
+        this.layerManager.width = obj.layerManager.width;
+        this.layerManager.height = obj.layerManager.height;
         obj.layerManager.layers.forEach((layer, i) => {
             this.layerManager.addLayer(layer.name, i);
             this.layerManager.layers[i].data = layer.data;
@@ -628,12 +662,35 @@ class DrawingArea {
         // set input values
         obj.tools.tools.forEach((tool, i) => {
             tool.inputs.forEach((input, j) => {
-                if(this.tools.tools[i].inputs[j].type !== "file") {
+                if (this.tools.tools[i].inputs[j].type !== "file") {
                     this.tools.tools[i].inputs[j].value = input.value;
                 }
             });
         });
 
         // and hope that it works
+    }
+
+    pushToUndoStack() {
+        // call this when you "do" something
+        if (this.undoStack.length < this.maxUndoSteps) {
+            this.redoStack = []; // reset the redo stack
+            let state = this.getProjectAsJSON();
+            this.undoStack.push(state);
+        }
+    }
+    undo() {
+        if (this.undoStack.length > 0) {
+            let undone = this.undoStack.pop();
+            this.redoStack.push(this.getProjectAsJSON());
+            this.loadProject(undone);
+        }
+    }
+    redo() {
+        if(this.redoStack.length > 0) {
+            let redone = this.redoStack.pop();
+            this.undoStack.push(this.getProjectAsJSON());
+            this.loadProject(redone);
+        }
     }
 }

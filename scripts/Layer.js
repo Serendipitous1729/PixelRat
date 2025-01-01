@@ -9,7 +9,7 @@ class Layer {
         this.elem = document.createElement("div");
         this.elem.classList.add("layer");
 
-        if(name !== undefined) {
+        if (name !== undefined) {
             this.name = name;
         }
 
@@ -40,7 +40,7 @@ class Layer {
 
         this.data.length = this.width;
         for (let x = 0; x < this.width; x++) {
-            if(this.data[x] == undefined){
+            if (this.data[x] == undefined) {
                 this.data[x] = [];
             }
 
@@ -51,11 +51,11 @@ class Layer {
         }
     }
 
-    parseAndModifyData(callback){
+    parseAndModifyData(callback) {
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 let newValue = callback(x, y, this.data[x][y]);
-                if(newValue != undefined){
+                if (newValue != undefined) {
                     this.data[x][y] = newValue;
                 }
             }
@@ -63,12 +63,14 @@ class Layer {
     }
 
     set(x, y, val) {
-        if(this.isIndexValid(x, y)) {
+        if (this.isIndexValid(x, y)) {
             this.data[x][y] = val;
+            return true;
         }
+        return false;
     }
 
-    isIndexValid(x, y){
+    isIndexValid(x, y) {
         return this.data[x] !== undefined && this.data[x][y] !== undefined;
     }
 }

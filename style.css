@@ -53,7 +53,7 @@ a:active {
 
 
 #navbar {
-    display: block;
+    display: flex;
     padding: 0;
     background-color: #111111;
     height: 50px;
@@ -62,10 +62,18 @@ a:active {
 
 #heading {
     margin: 0;
+    margin-left: 8px;
     font-style: normal;
     font-weight: normal;
     font-family: "Silkscreen", monospace;
     color: #ffff00;
+    display: inline;
+}
+
+#github {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
 }
 
 
