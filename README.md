@@ -4,6 +4,8 @@
 
 URL: https://pixelrat.vercel.app/
 
+![what it looks like](pixelrat-image/app-screenshot.png)
+
 ## keyboard shortcuts
 **ctrl + z** - undo  
 **ctrl + y** - redo  
@@ -72,3 +74,4 @@ the layers are drawn from top to bottom, so the bottom-most layer is actually on
 
 ## conclusion
 so yeah, thats about it. now go make some cool stuff with [PixelRat](https://pixelrat.vercel.app/) :)
+![THE PIXELRAT](pixelrat-image/pixel-rat.png)
